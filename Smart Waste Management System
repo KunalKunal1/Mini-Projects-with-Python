@@ -1,0 +1,105 @@
+#Smart Waste Management System
+
+import random
+import time
+import json
+import networkx as nx
+import matplotlib.pyplot as plt
+
+# Simulated IoT Device Data Generation
+def generate_bin_data(num_bins):
+    bins = []
+    for i in range(num_bins):
+        bin_data = {
+            "bin_id": f"bin_{i+1}",
+            "fill_level": random.randint(0, 100)  # Fill level from 0 to 100%
+        }
+        bins.append(bin_data)
+    return bins
+
+def save_bin_data(bins):
+    with open('bin_data.json', 'w') as f:
+        json.dump(bins, f)
+
+def load_bin_data(file_path):
+    with open(file_path, 'r') as f:
+        return json.load(f)
+
+def get_bins_needing_collection(bins, threshold=70):
+    return [bin for bin in bins if bin['fill_level'] > threshold]
+
+# Route Optimization
+def create_graph():
+    G = nx.Graph()
+    G.add_edges_from([
+        ("bin_1", "bin_2", {"weight": 1}),
+        ("bin_1", "bin_3", {"weight": 4}),
+        ("bin_2", "bin_3", {"weight": 2}),
+        ("bin_2", "bin_4", {"weight": 5}),
+        ("bin_3", "bin_4", {"weight": 1}),
+    ])
+    return G
+
+def optimize_route(start_bin, bins_to_collect):
+    G = create_graph()
+    route = []
+    for bin in bins_to_collect:
+        if bin in G.nodes:
+            route.append(nx.shortest_path(G, source=start_bin, target=bin, weight='weight'))
+            start_bin = bin  # Update start_bin for the next leg of the route
+    return route
+
+# Data Visualization
+def visualize_fill_levels(bins):
+    bin_ids = [bin['bin_id'] for bin in bins]
+    fill_levels = [bin['fill_level'] for bin in bins]
+
+    plt.bar(bin_ids, fill_levels, color='blue')
+    plt.axhline(y=70, color='r', linestyle='--', label='Threshold')
+    plt.xlabel('Waste Bins')
+    plt.ylabel('Fill Level (%)')
+    plt.title('Waste Bin Fill Levels')
+    plt.legend()
+    plt.show()
+
+# Main Menu
+def main_menu():
+    num_bins = 10  # Number of waste bins
+    while True:
+        print("\n--- Smart Waste Management System ---")
+        print("1. Generate Bin Data")
+        print("2. View Bin Data")
+        print("3. View Bins Needing Collection")
+        print("4. Optimize Collection Route")
+        print("5. Visualize Fill Levels")
+        print("6. Exit")
+        
+        choice = input("Select an option: ")
+        
+        if choice == '1':
+            bins = generate_bin_data(num_bins)
+            save_bin_data(bins)
+            print("Generated and saved bin data.")
+        elif choice == '2':
+            bins = load_bin_data('bin_data.json')
+            print("Current Bin Data:", bins)
+        elif choice == '3':
+            bins = load_bin_data('bin_data.json')
+            bins_needing_collection = get_bins_needing_collection(bins)
+            print("Bins needing collection:", bins_needing_collection)
+        elif choice == '4':
+            start_bin = input("Enter starting bin ID (e.g., bin_1): ")
+            bins_to_collect = input("Enter bin IDs to collect (comma-separated): ").split(',')
+            route = optimize_route(start_bin, [bin.strip() for bin in bins_to_collect])
+            print("Optimized route:", route)
+        elif choice == '5':
+            bins = load_bin_data('bin_data.json')
+            visualize_fill_levels(bins)
+        elif choice == '6':
+            print("Exiting the system.")
+            break
+        else:
+            print("Invalid option. Please try again.")
+
+if __name__ == "__main__":
+    main_menu()
