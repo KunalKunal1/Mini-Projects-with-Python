@@ -1,4 +1,3 @@
-# Advanced Project 1: Personal Finance Manager with SQLite
 
 import tkinter as tk
 from tkinter import ttk, messagebox
