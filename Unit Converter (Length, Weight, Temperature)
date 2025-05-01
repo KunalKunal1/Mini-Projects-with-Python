@@ -1,0 +1,49 @@
+import tkinter as tk
+from tkinter import ttk
+
+def convert():
+    try:
+        value = float(entry.get())
+        from_unit = from_unit_cb.get()
+        to_unit = to_unit_cb.get()
+
+        if from_unit == to_unit:
+            result.set(value)
+        elif from_unit == "Celsius" and to_unit == "Fahrenheit":
+            result.set((value * 9/5) + 32)
+        elif from_unit == "Fahrenheit" and to_unit == "Celsius":
+            result.set((value - 32) * 5/9)
+        elif from_unit == "Kilogram" and to_unit == "Gram":
+            result.set(value * 1000)
+        elif from_unit == "Gram" and to_unit == "Kilogram":
+            result.set(value / 1000)
+        elif from_unit == "Kilometer" and to_unit == "Meter":
+            result.set(value * 1000)
+        elif from_unit == "Meter" and to_unit == "Kilometer":
+            result.set(value / 1000)
+        else:
+            result.set("Unsupported")
+    except:
+        result.set("Invalid Input")
+
+root = tk.Tk()
+root.title("Unit Converter")
+
+entry = tk.Entry(root, font=('Arial', 14))
+entry.pack(pady=5)
+
+units = ["Celsius", "Fahrenheit", "Kilogram", "Gram", "Kilometer", "Meter"]
+from_unit_cb = ttk.Combobox(root, values=units, font=('Arial', 12))
+from_unit_cb.pack(pady=5)
+from_unit_cb.set("Celsius")
+
+to_unit_cb = ttk.Combobox(root, values=units, font=('Arial', 12))
+to_unit_cb.pack(pady=5)
+to_unit_cb.set("Fahrenheit")
+
+tk.Button(root, text="Convert", command=convert).pack(pady=5)
+
+result = tk.StringVar()
+tk.Label(root, textvariable=result, font=('Arial', 16)).pack(pady=10)
+
+root.mainloop()
