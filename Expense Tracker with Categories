@@ -1,0 +1,37 @@
+import tkinter as tk
+from tkinter import ttk
+
+expenses = []
+
+def add_expense():
+    amount = entry_amount.get()
+    category = category_cb.get()
+    if amount and category:
+        expenses.append((category, float(amount)))
+        listbox.insert(tk.END, f"{category}: ₹{amount}")
+        entry_amount.delete(0, tk.END)
+        update_total()
+
+def update_total():
+    total = sum(x[1] for x in expenses)
+    label_total.config(text=f"Total: ₹{total}")
+
+root = tk.Tk()
+root.title("Expense Tracker")
+
+entry_amount = tk.Entry(root)
+entry_amount.pack(pady=5)
+
+category_cb = ttk.Combobox(root, values=["Food", "Transport", "Bills", "Entertainment", "Others"])
+category_cb.pack(pady=5)
+category_cb.set("Food")
+
+tk.Button(root, text="Add Expense", command=add_expense).pack(pady=5)
+
+listbox = tk.Listbox(root, width=40)
+listbox.pack(pady=5)
+
+label_total = tk.Label(root, text="Total: ₹0")
+label_total.pack()
+
+root.mainloop()
