@@ -1,0 +1,73 @@
+# Advanced Project 1: Personal Finance Manager with SQLite
+
+import tkinter as tk
+from tkinter import ttk, messagebox
+import sqlite3
+import datetime
+
+conn = sqlite3.connect('finance.db')
+c = conn.cursor()
+c.execute('''CREATE TABLE IF NOT EXISTS transactions (id INTEGER PRIMARY KEY, type TEXT, category TEXT, amount REAL, date TEXT)''')
+conn.commit()
+
+def add_transaction():
+    ttype = type_var.get()
+    category = category_var.get()
+    amount = amount_entry.get()
+    date = date_entry.get()
+    try:
+        c.execute("INSERT INTO transactions (type, category, amount, date) VALUES (?, ?, ?, ?)",
+                  (ttype, category, float(amount), date))
+        conn.commit()
+        messagebox.showinfo("Success", "Transaction added")
+        load_transactions()
+    except:
+        messagebox.showerror("Error", "Invalid data")
+
+def load_transactions():
+    for row in tree.get_children():
+        tree.delete(row)
+    c.execute("SELECT * FROM transactions")
+    for row in c.fetchall():
+        tree.insert('', tk.END, values=row)
+
+root = tk.Tk()
+root.title("Personal Finance Manager")
+
+frame = tk.Frame(root)
+frame.pack(pady=10)
+
+type_var = tk.StringVar()
+type_cb = ttk.Combobox(frame, textvariable=type_var, values=["Income", "Expense"])
+type_cb.grid(row=0, column=1)
+type_cb.set("Income")
+
+tk.Label(frame, text="Type").grid(row=0, column=0)
+
+category_var = tk.StringVar()
+category_cb = ttk.Combobox(frame, textvariable=category_var, values=["Food", "Salary", "Rent", "Others"])
+category_cb.grid(row=1, column=1)
+category_cb.set("Food")
+
+tk.Label(frame, text="Category").grid(row=1, column=0)
+
+amount_entry = tk.Entry(frame)
+amount_entry.grid(row=2, column=1)
+tk.Label(frame, text="Amount").grid(row=2, column=0)
+
+date_entry = tk.Entry(frame)
+date_entry.insert(0, datetime.date.today().strftime("%Y-%m-%d"))
+date_entry.grid(row=3, column=1)
+tk.Label(frame, text="Date").grid(row=3, column=0)
+
+tk.Button(frame, text="Add Transaction", command=add_transaction).grid(row=4, column=0, columnspan=2, pady=5)
+
+columns = ("ID", "Type", "Category", "Amount", "Date")
+tree = ttk.Treeview(root, columns=columns, show='headings')
+for col in columns:
+    tree.heading(col, text=col)
+tree.pack(fill=tk.BOTH, expand=True)
+
+load_transactions()
+
+root.mainloop()
