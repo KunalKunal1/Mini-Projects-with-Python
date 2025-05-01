@@ -1,0 +1,43 @@
+import tkinter as tk
+
+questions = [
+    {"q": "Capital of India?", "a": "New Delhi", "options": ["Mumbai", "Chennai", "New Delhi", "Kolkata"]},
+    {"q": "5 + 7 = ?", "a": "12", "options": ["10", "11", "12", "13"]},
+]
+
+index = 0
+score = 0
+
+def load_question():
+    global index
+    q = questions[index]
+    label.config(text=q["q"])
+    for i in range(4):
+        btns[i].config(text=q["options"][i])
+
+def check_answer(selected):
+    global index, score
+    if btns[selected]['text'] == questions[index]["a"]:
+        score += 1
+    index += 1
+    if index < len(questions):
+        load_question()
+    else:
+        label.config(text=f"Quiz Finished! Score: {score}/{len(questions)}")
+        for b in btns:
+            b.pack_forget()
+
+root = tk.Tk()
+root.title("Quiz App")
+
+label = tk.Label(root, font=("Arial", 16), wraplength=300)
+label.pack(pady=10)
+
+btns = []
+for i in range(4):
+    btn = tk.Button(root, width=25, command=lambda i=i: check_answer(i))
+    btn.pack(pady=2)
+    btns.append(btn)
+
+load_question()
+root.mainloop()
